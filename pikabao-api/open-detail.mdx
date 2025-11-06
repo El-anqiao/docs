@@ -1,6 +1,6 @@
 ---
 title: "开卡详情"
-api: "POST /bank_card/open_detail"
+api: "POST /agent/v1/tasks/query"
 description: "查询开卡订单的详细信息和处理状态"
 ---
 
@@ -10,7 +10,7 @@ description: "查询开卡订单的详细信息和处理状态"
   用户标识
 </ParamField>
 
-<ParamField body="orderId" type="string" required>
+<ParamField body="taskId" type="string" required>
   开卡接口返回的订单 ID
 </ParamField>
 
@@ -61,7 +61,7 @@ description: "查询开卡订单的详细信息和处理状态"
 
 <RequestExample>
 ```bash cURL
-curl --location --request POST 'http://kf.pikabao.cc/bank_card/open_detail' \
+curl --location --request POST 'http://kf.pikabao.cc/agent/v1/tasks/query' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "appid": "user123",
@@ -81,7 +81,7 @@ const data = {
 const sign = generateSign(data, secretKey);
 data.sign = sign;
 
-const response = await fetch("http://kf.pikabao.cc/bank_card/open_detail", {
+const response = await fetch("http://kf.pikabao.cc/agent/v1/tasks/query", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

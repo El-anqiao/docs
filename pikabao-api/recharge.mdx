@@ -1,6 +1,6 @@
 ---
 title: "信用卡充值"
-api: "POST /bank_card/recharge"
+api: "POST /agent/v1/cards/recharge"
 description: "为已开通的虚拟信用卡充值"
 ---
 
@@ -10,7 +10,7 @@ description: "为已开通的虚拟信用卡充值"
   用户标识
 </ParamField>
 
-<ParamField body="bankCardId" type="string">
+<ParamField body="cardId" type="string">
   信用卡 ID，与 bankCardNum 二选一
 </ParamField>
 
@@ -70,7 +70,7 @@ description: "为已开通的虚拟信用卡充值"
 
 <RequestExample>
 ```bash cURL
-curl --location --request POST 'http://kf.pikabao.cc/bank_card/recharge' \
+curl --location --request POST 'http://kf.pikabao.cc/agent/v1/cards/recharge' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "appid": "user123",
@@ -92,7 +92,7 @@ const data = {
 const sign = generateSign(data, secretKey);
 data.sign = sign;
 
-const response = await fetch("http://kf.pikabao.cc/bank_card/recharge", {
+const response = await fetch("http://kf.pikabao.cc/agent/v1/cards/recharge", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

@@ -1,6 +1,6 @@
 ---
 title: "信用卡冻结"
-api: "PUT /bank_card/suspend"
+api: "PUT /agent/v1/cards/suspend"
 description: "冻结虚拟信用卡，冻结后无法进行交易"
 ---
 
@@ -32,7 +32,7 @@ description: "冻结虚拟信用卡，冻结后无法进行交易"
 
 <RequestExample>
 ```bash cURL
-curl --location --request PUT 'http://kf.pikabao.cc/bank_card/suspend?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
+curl --location --request PUT 'http://kf.pikabao.cc/agent/v1/cards/suspend?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
 ```
 
 ```javascript JavaScript
@@ -45,7 +45,7 @@ const params = {
 const sign = generateSign(params, secretKey);
 
 const response = await fetch(
-  `http://kf.pikabao.cc/bank_card/suspend?${new URLSearchParams({...params, sign})}`,
+  `http://kf.pikabao.cc/agent/v1/cards/suspend?${new URLSearchParams({...params, sign})}`,
   { method: "PUT" }
 );
 const result = await response.json();

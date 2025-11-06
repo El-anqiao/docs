@@ -1,6 +1,6 @@
 ---
 title: "信用卡资金转出"
-api: "POST /bank_card/card_cash_out"
+api: "POST /agent/v1/cards/cashout"
 description: "将虚拟信用卡内的余额转出到账户余额"
 ---
 
@@ -73,7 +73,7 @@ description: "将虚拟信用卡内的余额转出到账户余额"
 
 <RequestExample>
 ```bash cURL
-curl --location --request POST 'http://kf.pikabao.cc/bank_card/card_cash_out' \
+curl --location --request POST 'http://kf.pikabao.cc/agent/v1/cards/cashout' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "appid": "user123",
@@ -95,7 +95,7 @@ const data = {
 const sign = generateSign(data, secretKey);
 data.sign = sign;
 
-const response = await fetch("http://kf.pikabao.cc/bank_card/card_cash_out", {
+const response = await fetch("http://kf.pikabao.cc/agent/v1/cards/cashout", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

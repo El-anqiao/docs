@@ -1,6 +1,6 @@
 ---
 title: "信用卡销卡"
-api: "DELETE /bank_card/cancel"
+api: "DELETE /agent/v1/cards/destroy"
 description: "注销虚拟信用卡，卡内余额将退回账户"
 ---
 
@@ -28,7 +28,7 @@ description: "注销虚拟信用卡，卡内余额将退回账户"
 
 <RequestExample>
 ```bash cURL
-curl --location --request DELETE 'http://kf.pikabao.cc/bank_card/cancel?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
+curl --location --request DELETE 'http://kf.pikabao.cc/agent/v1/cards/destroy?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
 ```
 
 ```javascript JavaScript
@@ -41,7 +41,7 @@ const params = {
 const sign = generateSign(params, secretKey);
 
 const response = await fetch(
-  `http://kf.pikabao.cc/bank_card/cancel?${new URLSearchParams({...params, sign})}`,
+  `http://kf.pikabao.cc/agent/v1/cards/destroy?${new URLSearchParams({...params, sign})}`,
   { method: "DELETE" }
 );
 const result = await response.json();
