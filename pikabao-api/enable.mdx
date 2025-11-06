@@ -32,7 +32,7 @@ description: "解冻已冻结的虚拟信用卡，恢复正常使用"
 
 <RequestExample>
 ```bash cURL
-curl --location --request PUT 'http://kf.pikabao.cc/agent/v1/cards/enable?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
+curl --location --request PUT 'https://kf.pikabao.cc/agent/v1/cards/enable?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
 ```
 
 ```javascript JavaScript
@@ -45,7 +45,7 @@ const params = {
 const sign = generateSign(params, secretKey);
 
 const response = await fetch(
-  `http://kf.pikabao.cc/agent/v1/cards/enable?${new URLSearchParams({...params, sign})}`,
+  `https://kf.pikabao.cc/agent/v1/cards/enable?${new URLSearchParams({...params, sign})}`,
   { method: "PUT" }
 );
 const result = await response.json();

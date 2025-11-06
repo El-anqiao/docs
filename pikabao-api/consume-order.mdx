@@ -82,7 +82,7 @@ description: "查询虚拟信用卡的交易记录，支持分页查询"
 
 <RequestExample>
 ```bash cURL
-curl --location 'http://kf.pikabao.cc/agent/v1/cards/transactions?appid=user123&page=1&pageSize=20&timestamp=1640995200000&sign=ABC123...'
+curl --location 'https://kf.pikabao.cc/agent/v1/cards/transactions?appid=user123&page=1&pageSize=20&timestamp=1640995200000&sign=ABC123...'
 ```
 
 ```javascript JavaScript
@@ -97,7 +97,7 @@ const params = {
 const sign = generateSign(params, secretKey);
 
 const response = await fetch(
-  `http://kf.pikabao.cc/agent/v1/cards/transactions?${new URLSearchParams({...params, sign})}`
+  `https://kf.pikabao.cc/agent/v1/cards/transactions?${new URLSearchParams({...params, sign})}`
 );
 const orders = await response.json();
 ```
@@ -117,7 +117,7 @@ sign = generate_sign(params, secret_key)
 params["sign"] = sign
 
 response = requests.get(
-    "http://kf.pikabao.cc/agent/v1/cards/transactions",
+    "https://kf.pikabao.cc/agent/v1/cards/transactions",
     params=params
 )
 orders = response.json()

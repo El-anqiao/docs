@@ -61,7 +61,7 @@ description: "查询开卡订单的详细信息和处理状态"
 
 <RequestExample>
 ```bash cURL
-curl --location --request POST 'http://kf.pikabao.cc/agent/v1/tasks/query' \
+curl --location --request POST 'https://kf.pikabao.cc/agent/v1/tasks/query' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "appid": "user123",
@@ -81,7 +81,7 @@ const data = {
 const sign = generateSign(data, secretKey);
 data.sign = sign;
 
-const response = await fetch("http://kf.pikabao.cc/agent/v1/tasks/query", {
+const response = await fetch("https://kf.pikabao.cc/agent/v1/tasks/query", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

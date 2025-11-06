@@ -78,7 +78,7 @@ description: "获取用户所有已开通的虚拟信用卡信息"
 
 <RequestExample>
 ```bash cURL
-curl --location 'http://kf.pikabao.cc/agent/v1/cards/list?appid=user123&timestamp=1640995200000&sign=ABC123...'
+curl --location 'https://kf.pikabao.cc/agent/v1/cards/list?appid=user123&timestamp=1640995200000&sign=ABC123...'
 ```
 
 ```javascript JavaScript
@@ -91,7 +91,7 @@ const params = {
 const sign = generateSign(params, secretKey);
 
 const response = await fetch(
-  `http://kf.pikabao.cc/agent/v1/cards/list?${new URLSearchParams({...params, sign})}`
+  `https://kf.pikabao.cc/agent/v1/cards/list?${new URLSearchParams({...params, sign})}`
 );
 const data = await response.json();
 ```

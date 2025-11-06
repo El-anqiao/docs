@@ -60,7 +60,7 @@ description: "获取当前可用的信用卡 BIN（Bank Identification Number）
 
 <RequestExample>
 ```bash cURL
-curl --location 'http://kf.pikabao.cc/agent/v1/cards/bins?appid=user123&timestamp=1640995200000&sign=ABC123...'
+curl --location 'https://kf.pikabao.cc/agent/v1/cards/bins?appid=user123&timestamp=1640995200000&sign=ABC123...'
 ```
 
 ```javascript JavaScript
@@ -72,7 +72,7 @@ const params = {
 const sign = generateSign(params, secretKey);
 
 const response = await fetch(
-  `http://kf.pikabao.cc/agent/v1/cards/bins?${new URLSearchParams({...params, sign})}`
+  `https://kf.pikabao.cc/agent/v1/cards/bins?${new URLSearchParams({...params, sign})}`
 );
 const bins = await response.json();
 ```

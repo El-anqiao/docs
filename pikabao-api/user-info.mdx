@@ -57,7 +57,7 @@ description: "获取用户账户信息、余额等详细信息"
 
 <RequestExample>
 ```bash cURL
-curl --location 'http://kf.pikabao.cc/agent/v1/account/info?appid=user123&timestamp=1640995200000&sign=ABC123...'
+curl --location 'https://kf.pikabao.cc/agent/v1/account/info?appid=user123&timestamp=1640995200000&sign=ABC123...'
 ```
 
 ```javascript JavaScript
@@ -70,7 +70,7 @@ const params = {
 const sign = generateSign(params, secretKey);
 
 const response = await fetch(
-  `http://kf.pikabao.cc/agent/v1/account/info?appid=${params.appid}&timestamp=${params.timestamp}&sign=${sign}`
+  `https://kf.pikabao.cc/agent/v1/account/info?appid=${params.appid}&timestamp=${params.timestamp}&sign=${sign}`
 );
 const data = await response.json();
 ```
@@ -88,7 +88,7 @@ params = {
 sign = generate_sign(params, secret_key)
 params["sign"] = sign
 
-response = requests.get("http://kf.pikabao.cc/agent/v1/account/info", params=params)
+response = requests.get("https://kf.pikabao.cc/agent/v1/account/info", params=params)
 data = response.json()
 ```
 </RequestExample>

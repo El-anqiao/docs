@@ -70,7 +70,7 @@ description: "为已开通的虚拟信用卡充值"
 
 <RequestExample>
 ```bash cURL
-curl --location --request POST 'http://kf.pikabao.cc/agent/v1/cards/recharge' \
+curl --location --request POST 'https://kf.pikabao.cc/agent/v1/cards/recharge' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "appid": "user123",
@@ -92,7 +92,7 @@ const data = {
 const sign = generateSign(data, secretKey);
 data.sign = sign;
 
-const response = await fetch("http://kf.pikabao.cc/agent/v1/cards/recharge", {
+const response = await fetch("https://kf.pikabao.cc/agent/v1/cards/recharge", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
