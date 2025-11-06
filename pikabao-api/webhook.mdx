@@ -1,0 +1,281 @@
+---
+title: "交易订单回调"
+description: "接收信用卡交易实时通知的 Webhook 配置说明"
+---
+
+## 回调说明
+
+当虚拟信用卡发生交易时，系统会向您配置的回调地址发送 POST 请求，实时通知交易信息。
+
+<Info>
+  回调地址在用户信息中配置，可通过平台后台设置
+</Info>
+
+## 回调请求
+
+### 请求方式
+
+```
+POST {您配置的回调地址}
+```
+
+### 请求头
+
+```
+Content-Type: application/json
+```
+
+### 请求体参数
+
+<ParamField body="accountId" type="string">
+  账户 ID
+</ParamField>
+
+<ParamField body="data" type="object">
+  交易数据对象
+  <Expandable title="data 字段">
+    <ParamField body="id" type="string">
+      交易订单 ID
+    </ParamField>
+    <ParamField body="cardNum" type="string">
+      信用卡号
+    </ParamField>
+    <ParamField body="type" type="string">
+      交易类型（Consumption, Recharge, CashOut, Credit 等）
+    </ParamField>
+    <ParamField body="status" type="string">
+      交易状态（Pending, Finish, Failed）
+    </ParamField>
+    <ParamField body="amount" type="string">
+      交易金额
+    </ParamField>
+    <ParamField body="merchantName" type="string">
+      商户名称
+    </ParamField>
+    <ParamField body="transactionId" type="string">
+      交易流水号
+    </ParamField>
+    <ParamField body="recordTime" type="string">
+      交易时间
+    </ParamField>
+    <ParamField body="remark" type="string">
+      备注信息
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="timestamp" type="string">
+  回调时间戳
+</ParamField>
+
+<ParamField body="sign" type="string">
+  签名值
+</ParamField>
+
+### 请求示例
+
+```json
+{
+  "accountId": "132456789",
+  "data": {
+    "id": "a7787ada1123-xxxx-uuuuu-sssss",
+    "cardNum": "5572710152044****",
+    "type": "Consumption",
+    "status": "Pending",
+    "amount": "-25.50",
+    "merchantName": "Amazon",
+    "transactionId": "TXN20231201123456",
+    "recordTime": "2023-12-01T10:30:00.000+00:00",
+    "remark": "在线购物"
+  },
+  "timestamp": "1701424200000",
+  "sign": "ABC123DEF456..."
+}
+```
+
+## 签名验证
+
+<Warning>
+  重要：必须验证回调请求的签名，确保请求来自皮卡宝平台
+</Warning>
+
+### 验证步骤
+
+<Steps>
+<Step title="提取签名">
+  从请求体中提取 `sign` 字段
+</Step>
+
+<Step title="构建验证字符串">
+  将 `accountId`、`data` 对象内的所有字段、`timestamp` 按照 ASCII 码排序并拼接
+
+  **注意**：data 对象内的参数也要参与排序，空值字段也要参与签名
+</Step>
+
+<Step title="计算签名">
+  使用相同的签名算法（MD5）计算签名值
+</Step>
+
+<Step title="对比验证">
+  将计算的签名与请求中的签名对比，一致则验证通过
+</Step>
+</Steps>
+
+### 签名验证示例
+
+```javascript
+function verifyWebhookSign(requestBody, secretKey) {
+  const { sign, ...params } = requestBody;
+
+  // 展开 data 对象
+  const { data, accountId, timestamp } = params;
+  const allParams = { accountId, timestamp, ...data };
+
+  // 按 ASCII 排序并构建字符串
+  const sortedKeys = Object.keys(allParams).sort();
+  const stringA = sortedKeys
+    .map(key => `${key}=${encodeURIComponent(allParams[key])}`)
+    .join('&')
+    .replace(/\+/g, '%20');
+
+  // 拼接密钥并计算 MD5
+  const stringSignTemp = `${stringA}&key=${secretKey}`;
+  const calculatedSign = md5(stringSignTemp).toUpperCase();
+
+  return calculatedSign === sign;
+}
+```
+
+```python
+import hashlib
+from urllib.parse import quote
+
+def verify_webhook_sign(request_body, secret_key):
+    sign = request_body.pop('sign')
+
+    # 展开 data 对象
+    data = request_body.pop('data')
+    all_params = {
+        'accountId': request_body['accountId'],
+        'timestamp': request_body['timestamp'],
+        **data
+    }
+
+    # 按 ASCII 排序
+    sorted_keys = sorted(all_params.keys())
+    string_a = '&'.join([
+        f"{key}={quote(str(all_params[key]))}"
+        for key in sorted_keys
+    ]).replace('+', '%20')
+
+    # 拼接密钥并计算 MD5
+    string_sign_temp = f"{string_a}&key={secret_key}"
+    calculated_sign = hashlib.md5(
+        string_sign_temp.encode()
+    ).hexdigest().upper()
+
+    return calculated_sign == sign
+```
+
+## 响应要求
+
+接收到回调后，您的服务器应返回：
+
+### 成功响应
+
+```json
+{
+  "code": 0,
+  "msg": "success"
+}
+```
+
+### 失败响应
+
+```json
+{
+  "code": 1,
+  "msg": "error message"
+}
+```
+
+<Note>
+  如果回调失败（网络错误、超时、返回非成功状态），系统会进行重试，最多重试 3 次
+</Note>
+
+## 重试机制
+
+- 重试间隔：5秒、30秒、300秒
+- 重试次数：最多 3 次
+- 超时时间：10 秒
+
+<Tip>
+  建议实现幂等性处理，避免重复回调导致的问题
+</Tip>
+
+## 最佳实践
+
+<CardGroup cols={2}>
+  <Card title="签名验证" icon="shield-check">
+    始终验证回调签名，防止伪造请求
+  </Card>
+  <Card title="异步处理" icon="clock">
+    快速响应，将业务逻辑放在异步队列处理
+  </Card>
+  <Card title="幂等设计" icon="repeat">
+    使用交易 ID 去重，避免重复处理
+  </Card>
+  <Card title="日志记录" icon="file-lines">
+    记录所有回调请求，便于问题排查
+  </Card>
+</CardGroup>
+
+## 回调处理示例
+
+```javascript
+// Express.js 示例
+app.post('/webhook/vcc', async (req, res) => {
+  try {
+    // 1. 验证签名
+    if (!verifyWebhookSign(req.body, SECRET_KEY)) {
+      return res.status(403).json({ code: 1, msg: '签名验证失败' });
+    }
+
+    // 2. 检查是否已处理（幂等性）
+    const { id } = req.body.data;
+    if (await isProcessed(id)) {
+      return res.json({ code: 0, msg: 'success' });
+    }
+
+    // 3. 快速响应
+    res.json({ code: 0, msg: 'success' });
+
+    // 4. 异步处理业务逻辑
+    processTransactionAsync(req.body.data);
+
+  } catch (error) {
+    console.error('Webhook error:', error);
+    res.status(500).json({ code: 1, msg: '处理失败' });
+  }
+});
+```
+
+## 常见问题
+
+<AccordionGroup>
+  <Accordion title="如何配置回调地址？">
+    在用户信息中的 `notifyUrl` 字段配置，可通过平台后台或 API 设置
+  </Accordion>
+
+  <Accordion title="回调会发送哪些交易？">
+    所有类型的交易都会触发回调，包括消费、充值、退款、撤销等
+  </Accordion>
+
+  <Accordion title="如何测试回调功能？">
+    可以在测试环境进行小额消费测试，验证回调是否正常接收和处理
+  </Accordion>
+
+  <Accordion title="回调失败怎么办？">
+    系统会自动重试 3 次，如果都失败，需要通过[交易查询接口](/pikabao-api/consume-order)主动查询
+  </Accordion>
+</AccordionGroup>

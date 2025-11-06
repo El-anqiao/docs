@@ -1,0 +1,152 @@
+---
+title: "API 介绍"
+description: "皮卡宝 API 接口说明、签名规则和响应代码"
+---
+
+## 通用说明
+
+皮卡宝 API 为开发者提供了虚拟信用卡管理的完整接口。
+
+### 请求地址
+
+所有 API 请求的基础 URL：
+
+```
+http://kf.pikabao.cc
+```
+
+### 认证方式
+
+所有 API 请求都需要进行签名验证，详见[签名规则](#签名规则)部分。
+
+## 签名规则
+
+为确保API请求的安全性，所有请求都需要进行签名验证。
+
+### 签名步骤
+
+<Steps>
+<Step title="参数排序">
+  将集合 M 内所有非空参数值按照参数名 ASCII 码从小到大排序（字典序）
+</Step>
+
+<Step title="构建字符串">
+  使用 URL 键值对格式（key1=value1&key2=value2...）拼接，需要对参数值进行 URL encode
+</Step>
+
+<Step title="处理特殊字符">
+  若 URL encode 后出现 '+' 字符，需要将 '+' 替换为 '%20'，得到字符串 stringA
+</Step>
+
+<Step title="生成签名">
+  在 stringA 最后拼接 `&key={secretKey}`，得到 stringSignTemp
+
+  对 stringSignTemp 进行 MD5 运算，将结果转换为大写，得到 sign 值
+</Step>
+</Steps>
+
+<Note>
+  secretKey 由平台提供，请联系客服人员获取
+</Note>
+
+### 签名示例
+
+```javascript
+// 示例参数
+const params = {
+  appid: "user123",
+  timestamp: "1640995200000",
+  amount: "100.00"
+};
+
+// 1. 排序并构建字符串
+const stringA = "amount=100.00&timestamp=1640995200000&appid=user123";
+
+// 2. 拼接密钥
+const stringSignTemp = stringA + "&key=YOUR_SECRET_KEY";
+
+// 3. MD5 并转大写
+const sign = md5(stringSignTemp).toUpperCase();
+```
+
+## 响应代码
+
+API 响应采用统一的格式，包含以下字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| code | Integer | 响应代码，0 表示成功 |
+| msg | String | 响应消息 |
+| content | Object/Array | 响应数据内容 |
+
+### 常见错误代码
+
+<ResponseField name="40002" type="参数错误">
+  请求参数不正确或缺少必需参数
+</ResponseField>
+
+<ResponseField name="10006" type="对象不存在">
+  请求的资源不存在
+</ResponseField>
+
+<ResponseField name="20001" type="余额不足">
+  账户余额不足以完成操作
+</ResponseField>
+
+<ResponseField name="40005" type="签名错误">
+  签名验证失败，请检查签名算法和密钥
+</ResponseField>
+
+### 响应示例
+
+**成功响应**:
+```json
+{
+  "code": 0,
+  "msg": "成功",
+  "content": {
+    // 数据内容
+  }
+}
+```
+
+**错误响应**:
+```json
+{
+  "code": 40002,
+  "msg": "参数错误"
+}
+```
+
+## 通用参数
+
+大多数 API 接口都需要以下通用参数：
+
+| 参数名 | 必选 | 类型 | 说明 |
+|--------|------|------|------|
+| appid | √ | string | 用户标识 |
+| timestamp | √ | string | 当前时间戳（毫秒），与平台服务器时间不可相差超过 5 分钟 |
+| sign | √ | string | 签名值 |
+
+<Warning>
+  时间戳与服务器时间相差超过 5 分钟的请求将被拒绝
+</Warning>
+
+## 开始使用
+
+现在您已经了解了 API 的基本概念，可以开始使用以下接口：
+
+<CardGroup cols={2}>
+  <Card title="用户信息" icon="user" href="/pikabao-api/user-info">
+    获取用户账户信息和余额
+  </Card>
+  <Card title="信用卡管理" icon="credit-card" href="/pikabao-api/my-cards">
+    查看和管理虚拟信用卡
+  </Card>
+  <Card title="开卡服务" icon="plus" href="/pikabao-api/open-card">
+    创建新的虚拟信用卡
+  </Card>
+  <Card title="交易查询" icon="list" href="/pikabao-api/consume-order">
+    查询信用卡交易记录
+  </Card>
+</CardGroup>

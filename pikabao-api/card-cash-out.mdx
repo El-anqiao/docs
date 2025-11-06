@@ -1,0 +1,140 @@
+---
+title: "信用卡资金转出"
+api: "POST /bank_card/card_cash_out"
+description: "将虚拟信用卡内的余额转出到账户余额"
+---
+
+## 请求参数
+
+<ParamField body="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField body="bankCardId" type="string">
+  信用卡 ID，与 bankCardNum 二选一
+</ParamField>
+
+<ParamField body="bankCardNum" type="string">
+  信用卡卡号，与 bankCardId 二选一
+</ParamField>
+
+<ParamField body="amount" type="string" required>
+  转出金额
+</ParamField>
+
+<ParamField body="idempotentKey" type="string" required>
+    唯一的交易id
+</ParamField>
+
+<ParamField body="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField body="sign" type="string" required>
+  签名值
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="content" type="object">
+  转出订单信息
+  <Expandable title="content 字段">
+    <ResponseField name="id" type="string">
+      转出订单 ID
+    </ResponseField>
+    <ResponseField name="userBankCardId" type="string">
+      信用卡 ID
+    </ResponseField>
+    <ResponseField name="userBankCardNum" type="string">
+      信用卡卡号
+    </ResponseField>
+    <ResponseField name="state" type="integer">
+      状态：1-处理中，10-成功，-10-失败
+    </ResponseField>
+    <ResponseField name="amount" type="string">
+      转出金额
+    </ResponseField>
+    <ResponseField name="createTime" type="string">
+      创建时间
+    </ResponseField>
+    <ResponseField name="modifyTime" type="string">
+      更新时间
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location --request POST 'http://kf.pikabao.cc/bank_card/card_cash_out' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "appid": "user123",
+  "bankCardId": "111222333",
+  "amount": "50.00",
+  "timestamp": "1640995200000",
+  "sign": "ABC123..."
+}'
+```
+
+```javascript JavaScript
+const data = {
+  appid: "user123",
+  bankCardId: "111222333",
+  amount: "50.00",
+  timestamp: Date.now().toString(),
+};
+
+const sign = generateSign(data, secretKey);
+data.sign = sign;
+
+const response = await fetch("http://kf.pikabao.cc/bank_card/card_cash_out", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(data),
+});
+
+const result = await response.json();
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "",
+  "content": {
+    "id": "111222333",
+    "userBankCardId": "444555666",
+    "userBankCardNum": "5572710152044****",
+    "state": 1,
+    "amount": "50.00",
+    "createTime": "2023-01-01 00:00:00",
+    "modifyTime": "2023-01-01 00:00:00"
+  }
+}
+```
+</ResponseExample>
+
+<Note>
+  转出金额不能超过卡内可用余额
+</Note>
+
+<Info>
+  转出完成后，资金将退回到账户余额，可用于开卡或充值
+</Info>
+
+## 使用场景
+
+- **余额管理**：将不需要的余额转回账户
+- **关卡前**：销卡前先将余额转出
+- **资金整合**：将多张卡的余额整合到账户

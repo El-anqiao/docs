@@ -1,0 +1,72 @@
+---
+title: "信用卡冻结"
+api: "PUT /bank_card/suspend"
+description: "冻结虚拟信用卡，冻结后无法进行交易"
+---
+
+## 请求参数
+
+<ParamField query="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField query="cardId" type="string">
+  信用卡 ID，与 cardNum 二选一
+</ParamField>
+
+<ParamField query="cardNum" type="string">
+  信用卡卡号，与 cardId 二选一
+</ParamField>
+
+<ParamField query="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField body="idempotentKey" type="string" required>
+    唯一的交易id
+</ParamField>
+
+<ParamField query="sign" type="string" required>
+  签名值
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --location --request PUT 'http://kf.pikabao.cc/bank_card/suspend?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
+```
+
+```javascript JavaScript
+const params = {
+  appid: "user123",
+  cardId: "111222333",
+  timestamp: Date.now().toString(),
+};
+
+const sign = generateSign(params, secretKey);
+
+const response = await fetch(
+  `http://kf.pikabao.cc/bank_card/suspend?${new URLSearchParams({...params, sign})}`,
+  { method: "PUT" }
+);
+const result = await response.json();
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "成功"
+}
+```
+</ResponseExample>
+
+<Info>
+  冻结后的卡片无法进行任何交易，但可以随时通过[解冻接口](/pikabao-api/enable)恢复使用
+</Info>
+
+## 使用场景
+
+- **安全防护**：发现卡片信息泄露时立即冻结
+- **临时停用**：暂时不使用时冻结，避免意外扣费
+- **风险控制**：检测到异常交易时主动冻结

@@ -1,0 +1,193 @@
+---
+title: "交易订单查询"
+api: "GET /bank_card/consume_order"
+description: "查询虚拟信用卡的交易记录，支持分页查询"
+---
+
+## 请求参数
+
+<ParamField query="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField query="number" type="string">
+  信用卡卡号（可选，不传则查询所有卡的交易）
+</ParamField>
+
+<ParamField query="page" type="integer" required>
+  页码，从 1 开始
+</ParamField>
+
+<ParamField query="pageSize" type="integer" required>
+  每页显示数量
+</ParamField>
+
+<ParamField query="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField query="sign" type="string" required>
+  签名值
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  总记录数
+</ResponseField>
+
+<ResponseField name="rows" type="array">
+  交易记录列表
+  <Expandable title="rows 数组项">
+    <ResponseField name="id" type="string">
+      订单 ID
+    </ResponseField>
+    <ResponseField name="transactionId" type="string">
+      交易 ID
+    </ResponseField>
+    <ResponseField name="cardNum" type="string">
+      信用卡号
+    </ResponseField>
+    <ResponseField name="clientId" type="string">
+      客户 ID
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      交易类型（见下表）
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      交易状态（见下表）
+    </ResponseField>
+    <ResponseField name="amount" type="string">
+      交易金额
+    </ResponseField>
+    <ResponseField name="merchantName" type="string">
+      商户名称
+    </ResponseField>
+    <ResponseField name="remark" type="string">
+      备注
+    </ResponseField>
+    <ResponseField name="recordTime" type="string">
+      交易时间
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location 'http://kf.pikabao.cc/bank_card/consume_order?appid=user123&page=1&pageSize=20&timestamp=1640995200000&sign=ABC123...'
+```
+
+```javascript JavaScript
+const params = {
+  appid: "user123",
+  number: "5572710152044****", // 可选
+  page: 1,
+  pageSize: 20,
+  timestamp: Date.now().toString(),
+};
+
+const sign = generateSign(params, secretKey);
+
+const response = await fetch(
+  `http://kf.pikabao.cc/bank_card/consume_order?${new URLSearchParams({...params, sign})}`
+);
+const orders = await response.json();
+```
+
+```python Python
+import requests
+import time
+
+params = {
+    "appid": "user123",
+    "page": 1,
+    "pageSize": 20,
+    "timestamp": str(int(time.time() * 1000)),
+}
+
+sign = generate_sign(params, secret_key)
+params["sign"] = sign
+
+response = requests.get(
+    "http://kf.pikabao.cc/bank_card/consume_order",
+    params=params
+)
+orders = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "成功",
+  "total": 136,
+  "rows": [
+    {
+      "id": "UO123456789",
+      "transactionId": "789-asdas-jalksjdlak",
+      "cardNum": "5572710152044****",
+      "clientId": "4546464644",
+      "type": "Consumption",
+      "status": "Finish",
+      "amount": "-25.50",
+      "merchantName": "Amazon",
+      "remark": "在线购物",
+      "recordTime": "2024-08-28T05:13:37.000+00:00"
+    },
+    {
+      "id": "UO123456790",
+      "transactionId": "790-bsdbs-kblkteklbl",
+      "cardNum": "5572710152044****",
+      "clientId": "4546464644",
+      "type": "Recharge",
+      "status": "Finish",
+      "amount": "+100.00",
+      "merchantName": "",
+      "remark": "充值",
+      "recordTime": "2024-08-27T10:30:15.000+00:00"
+    }
+  ]
+}
+```
+</ResponseExample>
+
+## 交易类型 (type)
+
+| 类型 | 说明 | 金额符号 |
+|------|------|----------|
+| Consumption | 消费支出 | - |
+| Recharge | 卡充值 | + |
+| CashOut | 卡提现 | - |
+| Credit | 退款 | + |
+| Reversal | 交易撤销 | + |
+| Frozen | 冻结 | - |
+| UnFrozen | 解冻 | + |
+| Refuse | 拒绝交易 | 0 |
+
+## 交易状态 (status)
+
+| 状态 | 说明 | 描述 |
+|------|------|------|
+| Pending | 清算中 | 交易正在处理中 |
+| Finish | 已结算 | 交易已完成 |
+| Failed | 失败 | 交易失败 |
+
+<Tip>
+  建议设置合理的 pageSize（如 20-50），避免单次查询数据量过大
+</Tip>
+
+## 使用场景
+
+- **对账**：定期查询交易记录进行对账
+- **监控**：实时监控卡片消费情况
+- **分析**：分析消费模式和趋势
+- **审计**：提供交易审计追踪

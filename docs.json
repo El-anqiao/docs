@@ -1,68 +1,59 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "皮卡宝文档",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/img.png",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "皮卡宝 API",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "开始使用",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "pikabao-api/introduction"
             ]
           },
           {
-            "group": "Customization",
+            "group": "用户与卡片",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "pikabao-api/user-info",
+              "pikabao-api/my-cards",
+              "pikabao-api/enable-bin"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "开卡服务",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "pikabao-api/open-card",
+              "pikabao-api/open-detail"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "充值与转出",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
+              "pikabao-api/recharge",
+              "pikabao-api/card-cash-out"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "卡片管理",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "pikabao-api/suspend",
+              "pikabao-api/enable",
+              "pikabao-api/cancel"
+            ]
+          },
+          {
+            "group": "交易查询",
+            "pages": [
+              "pikabao-api/consume-order",
+              "pikabao-api/webhook"
             ]
           }
         ]
@@ -70,34 +61,25 @@
     ],
     "global": {
       "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
+
       ]
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/img.png",
+    "dark": "/logo/img.png"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@pikabao.com"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "href": "https://pikabao.com"
     }
   },
   "contextual": {
@@ -114,9 +96,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/pikabao0",
+      "telegram": "https://t.me/company/pikabaobot"
     }
   }
 }

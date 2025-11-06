@@ -1,0 +1,141 @@
+---
+title: "获取信用卡列表"
+api: "GET /agent/v1/cards/list"
+description: "获取用户所有已开通的虚拟信用卡信息"
+---
+
+## 请求参数
+
+<ParamField query="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField query="userBankId" type="string">
+  信用卡 ID，可选参数
+</ParamField>
+
+<ParamField query="userBankNum" type="string">
+  信用卡卡号，可选参数
+</ParamField>
+
+<ParamField query="timestamp" type="string" required>
+  当前时间戳（毫秒），与平台服务器时间不可相差超过 5 分钟
+</ParamField>
+
+<ParamField query="all" type="string">
+  是否查询所有卡，不传则只查询激活的卡
+</ParamField>
+
+<ParamField query="sign" type="string" required>
+  签名值
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码，0 表示成功
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="content" type="array">
+  信用卡列表
+  <Expandable title="content 数组项">
+    <ResponseField name="id" type="string">
+      信用卡 ID
+    </ResponseField>
+    <ResponseField name="organization" type="string">
+      卡组织（VISA, MASTERCARD 等）
+    </ResponseField>
+    <ResponseField name="state" type="integer">
+      卡状态：1-激活，2-冻结，0-销卡
+    </ResponseField>
+    <ResponseField name="number" type="string">
+      信用卡号
+    </ResponseField>
+    <ResponseField name="expiryDate" type="string">
+      到期日期（格式：MM/YY）
+    </ResponseField>
+    <ResponseField name="cvv" type="string">
+      CVV 安全码
+    </ResponseField>
+    <ResponseField name="remark" type="string">
+      备注信息
+    </ResponseField>
+    <ResponseField name="createTime" type="string">
+      创建时间
+    </ResponseField>
+    <ResponseField name="modifyTime" type="string">
+      最后修改时间
+    </ResponseField>
+    <ResponseField name="cardBalance" type="string">
+      卡内余额
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location 'http://kf.pikabao.cc/agent/v1/cards/list?appid=user123&timestamp=1640995200000&sign=ABC123...'
+```
+
+```javascript JavaScript
+const params = {
+  appid: "user123",
+  timestamp: Date.now().toString(),
+  all: "true" // 查询所有卡
+};
+
+const sign = generateSign(params, secretKey);
+
+const response = await fetch(
+  `http://kf.pikabao.cc/agent/v1/cards/list?${new URLSearchParams({...params, sign})}`
+);
+const data = await response.json();
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "",
+  "content": [
+    {
+      "id": "111222333",
+      "organization": "VISA",
+      "state": 1,
+      "number": "5572710152044****",
+      "expiryDate": "10/25",
+      "cvv": "456",
+      "remark": "我的第一张卡",
+      "createTime": "2023-01-01 00:00:00",
+      "modifyTime": "2023-01-01 00:00:00",
+      "cardBalance": "100.00"
+    },
+    {
+      "id": "444555666",
+      "organization": "MASTERCARD",
+      "state": 1,
+      "number": "5572710152055****",
+      "expiryDate": "10/25",
+      "cvv": "789",
+      "remark": "我的第二张卡",
+      "createTime": "2023-01-01 00:00:00",
+      "modifyTime": "2023-01-01 00:00:00",
+      "cardBalance": "200.00"
+    }
+  ]
+}
+```
+</ResponseExample>
+
+## 卡状态说明
+
+| 状态值 | 说明 | 描述 |
+|--------|------|------|
+| 1 | 激活 | 卡片可正常使用 |
+| 2 | 冻结 | 卡片已冻结，无法交易 |
+| 0 | 销卡 | 卡片已注销 |

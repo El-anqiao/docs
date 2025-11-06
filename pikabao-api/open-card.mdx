@@ -1,0 +1,198 @@
+---
+title: "开卡接口"
+api: "POST /agent/v1/cards/open"
+description: "创建新的虚拟信用卡并进行初始充值"
+---
+
+## 请求参数
+
+<ParamField body="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField body="cardBin" type="string" required>
+  卡 BIN 码，从[可用BIN接口](/pikabao-api/enable-bin)获取
+</ParamField>
+
+<ParamField body="idempotentKey" type="string" required>
+  唯一的交易id
+</ParamField>
+
+<ParamField body="amount" type="string" required>
+    开卡充值金额
+</ParamField>
+
+<ParamField body="eMail" type="string">
+  电子邮箱，某些 BIN 需要提供邮箱接收验证码
+</ParamField>
+
+<ParamField body="remark" type="string">
+  信用卡备注
+</ParamField>
+
+<ParamField body="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField body="sign" type="string" required>
+  签名值
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="content" type="object">
+  开卡结果
+  <Expandable title="content 字段">
+    <ResponseField name="id" type="string">
+      开卡订单 ID
+    </ResponseField>
+    <ResponseField name="clientId" type="string">
+      用户编号
+    </ResponseField>
+    <ResponseField name="state" type="integer">
+      状态：1-处理中，10-成功，-10-失败
+    </ResponseField>
+    <ResponseField name="remark" type="string">
+      备注
+    </ResponseField>
+    <ResponseField name="createTime" type="string">
+      创建时间
+    </ResponseField>
+    <ResponseField name="modifyTime" type="string">
+      更新时间
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location --request POST 'http://kf.pikabao.cc/agent/v1/cards/open' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "appid": "user123",
+  "cardBin": "491090",
+  "amount": "100.00",
+  "eMail": "user@example.com",
+  "remark": "我的第一张虚拟卡",
+  "timestamp": "1640995200000",
+  "sign": "ABC123..."
+}'
+```
+
+```javascript JavaScript
+const data = {
+  appid: "user123",
+  cardBin: "491090",
+  amount: "100.00",
+  eMail: "user@example.com",
+  remark: "我的第一张虚拟卡",
+  timestamp: Date.now().toString(),
+};
+
+// 生成签名
+const sign = generateSign(data, secretKey);
+data.sign = sign;
+
+const response = await fetch("http://kf.pikabao.cc/agent/v1/cards/open", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(data),
+});
+
+const result = await response.json();
+```
+
+```python Python
+import requests
+import time
+
+data = {
+    "appid": "user123",
+    "cardBin": "491090",
+    "amount": "100.00",
+    "eMail": "user@example.com",
+    "remark": "我的第一张虚拟卡",
+    "timestamp": str(int(time.time() * 1000)),
+}
+
+# 生成签名
+sign = generate_sign(data, secret_key)
+data["sign"] = sign
+
+response = requests.post(
+    "http://kf.pikabao.cc/agent/v1/cards/open",
+    json=data
+)
+result = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "",
+  "content": {
+    "id": "111222333",
+    "clientId": "11111111",
+    "state": 1,
+    "remark": "我的第一张虚拟卡",
+    "createTime": "2023-01-01 00:00:00",
+    "modifyTime": "2023-01-01 00:00:00"
+  }
+}
+```
+
+```json 错误响应
+{
+  "code": 20001,
+  "msg": "余额不足"
+}
+```
+</ResponseExample>
+
+## 开卡流程
+
+<Steps>
+<Step title="获取可用 BIN">
+  调用[获取可用BIN接口](/pikabao-api/enable-bin)查看可用的卡 BIN 和费率
+</Step>
+
+<Step title="提交开卡请求">
+  选择合适的 BIN 并提交开卡请求，包含初始充值金额
+</Step>
+
+<Step title="等待处理">
+  开卡请求提交后，状态为"处理中"(state=1)
+</Step>
+
+<Step title="查询开卡结果">
+  使用返回的订单 ID 调用[开卡详情接口](/pikabao-api/open-detail)查询开卡结果
+</Step>
+
+<Step title="获取卡信息">
+  开卡成功后，调用[获取信用卡列表](/pikabao-api/my-cards)获取完整的卡片信息
+</Step>
+</Steps>
+
+## 状态说明
+
+| 状态值 | 说明 | 操作 |
+|--------|------|------|
+| 1 | 处理中 | 等待开卡完成，可轮询查询状态 |
+| 10 | 成功 | 开卡成功，可使用卡片 |
+| -10 | 失败 | 开卡失败，费用将退回账户 |
+
+<Warning>
+  开卡时会扣除开卡费和充值手续费，请确保账户余额充足
+</Warning>

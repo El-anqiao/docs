@@ -1,0 +1,124 @@
+---
+title: "开卡详情"
+api: "POST /bank_card/open_detail"
+description: "查询开卡订单的详细信息和处理状态"
+---
+
+## 请求参数
+
+<ParamField body="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField body="orderId" type="string" required>
+  开卡接口返回的订单 ID
+</ParamField>
+
+<ParamField body="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField body="sign" type="string" required>
+  签名值
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="content" type="object">
+  开卡订单详情
+  <Expandable title="content 字段">
+    <ResponseField name="id" type="string">
+      开卡订单 ID
+    </ResponseField>
+    <ResponseField name="clientId" type="string">
+      用户编号
+    </ResponseField>
+    <ResponseField name="userBankCardId" type="string">
+      信用卡 ID（开卡成功后返回）
+    </ResponseField>
+    <ResponseField name="state" type="integer">
+      状态：1-处理中，10-成功，-10-失败
+    </ResponseField>
+    <ResponseField name="remark" type="string">
+      备注
+    </ResponseField>
+    <ResponseField name="createTime" type="string">
+      创建时间
+    </ResponseField>
+    <ResponseField name="modifyTime" type="string">
+      更新时间
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location --request POST 'http://kf.pikabao.cc/bank_card/open_detail' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "appid": "user123",
+  "orderId": "111222333",
+  "timestamp": "1640995200000",
+  "sign": "ABC123..."
+}'
+```
+
+```javascript JavaScript
+const data = {
+  appid: "user123",
+  orderId: "111222333",
+  timestamp: Date.now().toString(),
+};
+
+const sign = generateSign(data, secretKey);
+data.sign = sign;
+
+const response = await fetch("http://kf.pikabao.cc/bank_card/open_detail", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(data),
+});
+
+const result = await response.json();
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "",
+  "content": {
+    "id": "111222333",
+    "clientId": "11111111",
+    "userBankCardId": "464654546",
+    "state": 10,
+    "remark": "我的第一张虚拟卡",
+    "createTime": "2023-01-01 00:00:00",
+    "modifyTime": "2023-01-01 00:00:10"
+  }
+}
+```
+</ResponseExample>
+
+## 状态说明
+
+| 状态值 | 说明 | 建议操作 |
+|--------|------|----------|
+| 1 | 处理中 | 等待 3-5 秒后再次查询 |
+| 10 | 成功 | 可使用 userBankCardId 查询卡片详情 |
+| -10 | 失败 | 开卡失败，费用已退回 |
+
+<Tip>
+  开卡成功后，使用返回的 `userBankCardId` 调用[获取信用卡列表](/pikabao-api/my-cards)获取完整卡片信息
+</Tip>

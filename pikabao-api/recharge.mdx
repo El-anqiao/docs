@@ -1,0 +1,152 @@
+---
+title: "信用卡充值"
+api: "POST /bank_card/recharge"
+description: "为已开通的虚拟信用卡充值"
+---
+
+## 请求参数
+
+<ParamField body="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField body="bankCardId" type="string">
+  信用卡 ID，与 bankCardNum 二选一
+</ParamField>
+
+<ParamField body="idempotentKey" type="string" required>
+    唯一的交易id
+</ParamField>
+
+<ParamField body="bankCardNum" type="string">
+  信用卡卡号，与 bankCardId 二选一
+</ParamField>
+
+<ParamField body="amount" type="string" required>
+  充值金额
+</ParamField>
+
+<ParamField body="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField body="sign" type="string" required>
+  签名值
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="content" type="object">
+  充值订单信息
+  <Expandable title="content 字段">
+    <ResponseField name="id" type="string">
+      充值订单 ID
+    </ResponseField>
+    <ResponseField name="userBankCardId" type="string">
+      信用卡 ID
+    </ResponseField>
+    <ResponseField name="state" type="integer">
+      状态：1-处理中，10-成功，-10-失败
+    </ResponseField>
+    <ResponseField name="createTime" type="string">
+      创建时间
+    </ResponseField>
+    <ResponseField name="modifyTime" type="string">
+      更新时间
+    </ResponseField>
+    <ResponseField name="bankCard" type="object">
+      信用卡详细信息
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location --request POST 'http://kf.pikabao.cc/bank_card/recharge' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "appid": "user123",
+  "bankCardId": "111222333",
+  "amount": "50.00",
+  "timestamp": "1640995200000",
+  "sign": "ABC123..."
+}'
+```
+
+```javascript JavaScript
+const data = {
+  appid: "user123",
+  bankCardId: "111222333",
+  amount: "50.00",
+  timestamp: Date.now().toString(),
+};
+
+const sign = generateSign(data, secretKey);
+data.sign = sign;
+
+const response = await fetch("http://kf.pikabao.cc/bank_card/recharge", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(data),
+});
+
+const result = await response.json();
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "",
+  "content": {
+    "id": "111222333",
+    "userBankCardId": "4654654",
+    "state": 1,
+    "createTime": "2023-01-01 00:00:00",
+    "modifyTime": "2023-01-01 00:00:00",
+    "bankCard": {
+      "id": "111222333",
+      "organization": "VISA",
+      "state": 1,
+      "number": "5572710152044****",
+      "expiryDate": "10/25",
+      "cvv": "456",
+      "remark": "我的虚拟卡",
+      "createTime": "2023-01-01 00:00:00",
+      "modifyTime": "2023-01-01 00:00:00",
+      "cardBalance": "150.00"
+    }
+  }
+}
+```
+</ResponseExample>
+
+## 注意事项
+
+<Warning>
+  充值会收取手续费，费率根据所选 BIN 而定，请参考[获取可用BIN](/pikabao-api/enable-bin)接口
+</Warning>
+
+<Note>
+  充值完成后，可通过[充值详情接口](/pikabao-api/recharge-detail)查询充值结果
+</Note>
+
+## 费用计算
+
+充值实际扣费 = 充值金额 + (充值金额 × 充值费率)
+
+**示例**：
+- 充值金额：$100
+- 充值费率：3%
+- 实际扣费：$100 + ($100 × 3%) = $103

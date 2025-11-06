@@ -1,0 +1,123 @@
+---
+title: "获取可用BIN"
+api: "GET /agent/v1/cards/bins"
+description: "获取当前可用的信用卡 BIN（Bank Identification Number）列表及费率信息"
+---
+
+## 请求参数
+
+<ParamField query="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField query="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField query="sign" type="string" required>
+  签名值
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="content" type="array">
+  可用 BIN 列表
+  <Expandable title="content 数组项">
+    <ResponseField name="id" type="string">
+      BIN ID
+    </ResponseField>
+    <ResponseField name="bin" type="string">
+      卡号前缀（BIN 码）
+    </ResponseField>
+    <ResponseField name="cr" type="string">
+      发卡国家
+    </ResponseField>
+    <ResponseField name="organization" type="string">
+      卡组织（VISA, MASTERCARD）
+    </ResponseField>
+    <ResponseField name="actualOpenCardPrice" type="string">
+      开卡费用
+    </ResponseField>
+    <ResponseField name="actualRechargeFeeRate" type="string">
+      充值费率（百分比）
+    </ResponseField>
+    <ResponseField name="enable" type="boolean">
+      是否可用
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      描述信息
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location 'http://kf.pikabao.cc/agent/v1/cards/bins?appid=user123&timestamp=1640995200000&sign=ABC123...'
+```
+
+```javascript JavaScript
+const params = {
+  appid: "user123",
+  timestamp: Date.now().toString(),
+};
+
+const sign = generateSign(params, secretKey);
+
+const response = await fetch(
+  `http://kf.pikabao.cc/agent/v1/cards/bins?${new URLSearchParams({...params, sign})}`
+);
+const bins = await response.json();
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "成功",
+  "content": [
+    {
+      "id": "240820174023000001",
+      "bin": "491090",
+      "cr": "美国",
+      "organization": "VISA",
+      "actualOpenCardPrice": "2.00",
+      "actualRechargeFeeRate": "3.00%",
+      "enable": true,
+      "description": "美国 VISA 虚拟卡"
+    },
+    {
+      "id": "240820174023000002",
+      "bin": "554866",
+      "cr": "美国",
+      "organization": "MASTERCARD",
+      "actualOpenCardPrice": "2.00",
+      "actualRechargeFeeRate": "3.00%",
+      "enable": true,
+      "description": "美国 MasterCard 虚拟卡"
+    }
+  ]
+}
+```
+</ResponseExample>
+
+## 使用说明
+
+<Note>
+  开卡前建议先调用此接口获取可用的 BIN 列表和费率信息，然后选择合适的 BIN 进行开卡
+</Note>
+
+### 费率计算示例
+
+如果选择 BIN `491090`：
+- 开卡费：$2.00
+- 充值 $100，手续费：$100 × 3% = $3.00
+- 实际扣费：$100 + $3.00 + $2.00 = $105.00

@@ -1,0 +1,119 @@
+---
+title: "获取用户信息"
+api: "GET /agent/v1/account/info"
+description: "获取用户账户信息、余额等详细信息"
+---
+
+## 请求参数
+
+<ParamField query="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField query="timestamp" type="string" required>
+  当前时间戳（毫秒），与平台服务器时间不可相差超过 5 分钟
+</ParamField>
+
+<ParamField query="sign" type="string" required>
+  签名值，签名算法请参考[签名规则](/pikabao-api/introduction#签名规则)
+</ParamField>
+
+## 响应
+
+<ResponseField name="code" type="integer">
+  响应代码，0 表示成功
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  响应消息
+</ResponseField>
+
+<ResponseField name="content" type="object">
+  用户信息对象
+  <Expandable title="content 字段">
+    <ResponseField name="id" type="string">
+      用户 ID
+    </ResponseField>
+    <ResponseField name="createTime" type="string">
+      创建时间
+    </ResponseField>
+    <ResponseField name="updateTime" type="string">
+      更新时间
+    </ResponseField>
+    <ResponseField name="enable" type="boolean">
+      账户是否启用
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      用户名称
+    </ResponseField>
+    <ResponseField name="balance" type="string">
+      账户余额
+    </ResponseField>
+    <ResponseField name="notifyUrl" type="string">
+      回调通知地址
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --location 'http://kf.pikabao.cc/agent/v1/account/info?appid=user123&timestamp=1640995200000&sign=ABC123...'
+```
+
+```javascript JavaScript
+const params = {
+  appid: "user123",
+  timestamp: Date.now().toString(),
+};
+
+// 生成签名
+const sign = generateSign(params, secretKey);
+
+const response = await fetch(
+  `http://kf.pikabao.cc/agent/v1/account/info?appid=${params.appid}&timestamp=${params.timestamp}&sign=${sign}`
+);
+const data = await response.json();
+```
+
+```python Python
+import requests
+import time
+
+params = {
+    "appid": "user123",
+    "timestamp": str(int(time.time() * 1000)),
+}
+
+# 生成签名
+sign = generate_sign(params, secret_key)
+params["sign"] = sign
+
+response = requests.get("http://kf.pikabao.cc/agent/v1/account/info", params=params)
+data = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "",
+  "content": {
+    "id": "123456789",
+    "createTime": "2023-01-01 00:00:00",
+    "updateTime": "2023-12-31 23:59:59",
+    "enable": true,
+    "name": "张三",
+    "balance": "1000.00",
+    "notifyUrl": "https://example.com/notify"
+  }
+}
+```
+
+```json 错误响应
+{
+  "code": 40005,
+  "msg": "签名错误"
+}
+```
+</ResponseExample>

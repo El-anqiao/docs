@@ -1,0 +1,66 @@
+---
+title: "信用卡销卡"
+api: "DELETE /bank_card/cancel"
+description: "注销虚拟信用卡，卡内余额将退回账户"
+---
+
+## 请求参数
+
+<ParamField query="appid" type="string" required>
+  用户标识
+</ParamField>
+
+<ParamField query="cardId" type="string">
+  信用卡 ID，与 cardNum 二选一
+</ParamField>
+
+<ParamField query="cardNum" type="string">
+  信用卡卡号，与 cardId 二选一
+</ParamField>
+
+<ParamField query="timestamp" type="string" required>
+  当前时间戳（毫秒）
+</ParamField>
+
+<ParamField query="sign" type="string" required>
+  签名值
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --location --request DELETE 'http://kf.pikabao.cc/bank_card/cancel?appid=user123&cardId=111222333&timestamp=1640995200000&sign=ABC123...'
+```
+
+```javascript JavaScript
+const params = {
+  appid: "user123",
+  cardId: "111222333",
+  timestamp: Date.now().toString(),
+};
+
+const sign = generateSign(params, secretKey);
+
+const response = await fetch(
+  `http://kf.pikabao.cc/bank_card/cancel?${new URLSearchParams({...params, sign})}`,
+  { method: "DELETE" }
+);
+const result = await response.json();
+```
+</RequestExample>
+
+<ResponseExample>
+```json 成功响应
+{
+  "code": 0,
+  "msg": "成功"
+}
+```
+</ResponseExample>
+
+<Warning>
+  销卡操作不可逆，请谨慎操作。销卡后，卡内余额将自动退回账户余额
+</Warning>
+
+<Note>
+  只有激活状态的卡片才能销卡，冻结状态的卡需先解冻
+</Note>
